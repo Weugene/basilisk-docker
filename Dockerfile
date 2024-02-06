@@ -20,28 +20,28 @@ ENV PATH $PATH:/home/basilisk/basilisk/src
 # Packages
 USER root
 # useful additional packages (basilisk)
-RUN apt-get -y update && apt-get install -y \
-    gnuplot imagemagick ffmpeg graphviz valgrind gifsicle pstoedit
-# Using Basilisk with python
-RUN apt-get -y update && apt-get install -y swig libpython2-dev
 # You also need to setup the MDFLAGS and PYTHONINCLUDE variables in your config file.
 # ssh is needed for certain tests
-RUN apt-get -y update && apt-get install -y openssh-server
+# GNU Scientific Library libgsl-dev is needed for certain tests
+# Using Basilisk with python
+# need wget
+# unzip is needed for topographic databases
+# python graphics
+RUN apt-get -y update && apt-get install -y \
+    gnuplot imagemagick ffmpeg graphviz valgrind gifsicle pstoedit \
+    openssh-server libgsl-dev swig \
+    unzip wget \
+    python libpython2-dev python-tk python3-pip
+
+RUN pip install matplotlib gprof2dot xdot
+
 # is this needed?
 RUN mkdir /var/run/sshd
-# libgsl-dev is needed for certain tests
-RUN apt-get -y update && apt-get install -y libgsl-dev
-# unzip is needed for topographic databases
-RUN apt-get -y update && apt-get install -y unzip 
+
 # mpi
 RUN apt-get -y update && apt-get install -y \
     libopenmpi-dev openmpi-bin
-# python graphics
-RUN apt-get -y update && apt-get install -y \
-    sudo python-tk python3-pip
-RUN pip install matplotlib gprof2dot xdot
-# have lost python?
-RUN apt-get -y update && apt-get install -y python
+
 # gerris
 RUN apt-get -y update && apt-get install -y \
     gerris gfsview-batch
@@ -56,10 +56,7 @@ RUN cd $BASILISK; \
     make -k; \
     make
 
-# CADNA
-# need wget
-USER root
-RUN apt-get -y update && apt-get install wget
+# install CADNA from source
 USER basilisk
 RUN wget http://cadna.lip6.fr/Download_Dir/cadna_c-2.0.2.tar.gz; \
     tar xzvf cadna_c-2.0.2.tar.gz; \ 
@@ -73,7 +70,7 @@ RUN cd cadna_c-2.0.2/; \
 RUN apt-get -y update && apt-get install -y clang
 USER basilisk
 
-# install Vof (gfortran is used for tests; not needed here for installation)
+# install Vof from source (gfortran is used for tests; not needed here for installation)
 USER root
 RUN apt-get -y update && apt-get install -y gfortran
 USER basilisk
@@ -87,6 +84,7 @@ RUN cd Vofi; \
     make install
 USER basilisk
 
+# install mesa
 USER root
 # off-screen rendering
 RUN apt-get -y update && apt-get install -y \
@@ -96,7 +94,7 @@ RUN apt-get -y update && apt-get install -y \
     libglu1-mesa-dev libglew-dev libgl1-mesa-dev
 USER basilisk
 
-# compile mesa
+# compile mesa from source
 USER basilisk
 RUN wget mesa.freedesktop.org/archive/mesa-19.0.4.tar.gz; \
     tar xzvf mesa-19.0.4.tar.gz;
@@ -138,7 +136,7 @@ RUN apt-get -y update && apt-get install -y chromium git firefox-esr
 # other useful packages (SGLS)
 # non-graphical (gfortran used in Vofi tests)
 RUN apt-get -y update && apt-get install -y \
-     less emacs
+     less vim
 # graphical - nomacs has gone?
 RUN apt-get -y update && apt-get install -y \
     vlc xpdf gimp xterm evince meshlab gv eog feh
